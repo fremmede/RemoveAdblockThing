@@ -11,8 +11,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function()
- {
+(function() {
     //
     //      Config
     //
@@ -39,7 +38,6 @@
         enable: true, // if true, replaces default window popup with a custom modal
         timer: 5000, // timer: number | false
     };
-
 
     //
     //      CODE
@@ -70,7 +68,7 @@
     // Setup
     //
 
-    //Set everything up here
+    // Set everything up here
     log("Script started");
 
     if (adblocker) removeAds();
@@ -78,9 +76,23 @@
     if (updateCheck) checkForUpdate();
     if (fixTimestamps) timestampFix();
 
-    // Remove Them pesski popups
-    function popupRemover() {
+    // Function to stop all audio
+    function stopAllAudio() {
+        const audios = document.querySelectorAll('audio');
+        audios.forEach(audio => {
+            audio.pause();
+            audio.currentTime = 0;  // Optional: reset time to 0
+        });
 
+        const videos = document.querySelectorAll('video');
+        videos.forEach(video => {
+            video.pause();
+            video.currentTime = 0;  // Optional: reset time to 0
+        });
+    }
+
+    // Remove Them pesky popups
+    function popupRemover() {
         setInterval(() => {
             const modalOverlay = document.querySelector("tp-yt-iron-overlay-backdrop");
             const popup = document.querySelector(".style-scope ytd-enforcement-message-view-model");
@@ -99,7 +111,7 @@
             if (popup) {
                 log("Popup detected, removing...");
 
-                if(popupButton) popupButton.click();
+                if (popupButton) popupButton.click();
 
                 popup.remove();
                 video.play();
@@ -118,12 +130,12 @@
         }, 1000);
     }
 
-    // undetected adblocker method
-    // undetected adblocker method
+    // Undetected adblocker method
     function removeAds() {
         log("removeAds()");
 
         setInterval(() => {
+            stopAllAudio();  // Detener todo el audio
 
             if (window.location.href !== currentUrl) {
                 currentUrl = window.location.href;
@@ -132,13 +144,13 @@
                 removePageAds();
             }
 
-            // Fix for youtube shorts
+            // Fix for YouTube shorts
             if (window.location.href.includes("shorts")) {
-                log("Youtube shorts detected, ignoring...");
+                log("YouTube shorts detected, ignoring...");
                 return;
             }
 
-            if (isVideoPlayerModified){
+            if (isVideoPlayerModified) {
                 removeAllDuplicateVideos();
                 return;
             }
@@ -146,7 +158,7 @@
             log("Video replacement started!");
 
             //
-            // remove ad audio
+            // Remove ad audio
             //
 
             var video = document.querySelector('video');
@@ -162,14 +174,12 @@
                 return;
             }
 
-            /**
-             * remove the "Ad blockers violate YouTube's Terms of Service" screen for safari
-             */
+            // Remove the "Ad blockers violate YouTube's Terms of Service" screen for Safari
             let errorScreen = document.querySelector("#error-screen");
             if (errorScreen) {
                 errorScreen.remove();
             }
-            
+
             //
             // Get the video ID from the URL
             //
@@ -210,7 +220,7 @@
             //
 
             const startOfUrl = "https://www.youtube-nocookie.com/embed/";
-          
+
             const endOfUrl = "?autoplay=1&modestbranding=1&rel=0";
             const finalUrl = startOfUrl + videoID + endOfUrl;
 
@@ -242,9 +252,6 @@
         }, 500);
         removePageAds();
     }
-    //
-    // logic functionm
-    // 
 
     function removeAllDuplicateVideos() {
         const videos = document.querySelectorAll('video');
@@ -271,28 +278,26 @@
     }
 
     function clearAllPlayers() {
-    
         const videoPlayerElements = document.querySelectorAll('.html5-video-player');
-    
+
         if (videoPlayerElements.length === 0) {
             console.error("No elements with class 'html5-video-player' found.");
             return false;
         }
-    
+
         videoPlayerElements.forEach(videoPlayerElement => {
-        const iframes = videoPlayerElement.querySelectorAll('iframe');
-        iframes.forEach(iframe => {
-            iframe.remove();
+            const iframes = videoPlayerElement.querySelectorAll('iframe');
+            iframes.forEach(iframe => {
+                iframe.remove();
+            });
         });
-    });
-    
+
         console.log("Removed all current players!");
         return true;
     }
 
-    //removes ads on the page (not video player ads)
-    function removePageAds(){
-
+    // Removes ads on the page (not video player ads)
+    function removePageAds() {
         const sponsor = document.querySelectorAll("div#player-ads.style-scope.ytd-watch-flexy, div#panels.style-scope.ytd-watch-flexy");
         const style = document.createElement('style');
 
@@ -369,7 +374,7 @@
     }
 
     function observerCallback(mutations) {
-        let isVideoAdded = mutations.some(mutation => 
+        let isVideoAdded = mutations.some(mutation =>
             Array.from(mutation.addedNodes).some(node => node.tagName === 'VIDEO')
         );
 
@@ -391,13 +396,12 @@
     // Update check
     //
 
-    function checkForUpdate(){
-
-        if (window.top !== window.self && !(window.location.href.includes("youtube.com"))){
+    function checkForUpdate() {
+        if (window.top !== window.self && !(window.location.href.includes("youtube.com"))) {
             return;
         }
 
-        if (hasIgnoredUpdate){
+        if (hasIgnoredUpdate) {
             return;
         }
 
@@ -409,7 +413,7 @@
             // Extract version from the script on GitHub
             const match = data.match(/@version\s+(\d+\.\d+)/);
             if (!match) {
-                log("Unable to extract version from the GitHub script.", "e")
+                log("Unable to extract version from the GitHub script.", "e");
                 return;
             }
 
@@ -506,7 +510,7 @@
                 break;
             default:
                 console.info(`ℹ️ ${message}`, ...args);
-        }        
+        }
     }
 
 })();
